@@ -44,6 +44,11 @@ const App = () => (
           <Route path="/payments" element={<Payments />} />
           <Route path="/accounting" element={<Accounting />} />
           <Route path="/tenant" element={<TenantDashboard />} />
+          <Route path="/tenant/properties" element={<TenantProperties />} />
+          <Route path="/tenant/complaints" element={<TenantComplaints />} />
+          <Route path="/tenant/notices" element={<TenantNotices />} />
+          <Route path="/tenant/payments" element={<TenantPayments />} />
+          <Route path="/tenant/settings" element={<TenantSettings />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

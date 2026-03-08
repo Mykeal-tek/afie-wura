@@ -161,6 +161,6 @@ export default function TenantDashboard() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </TenantLayout>
   );
 }
