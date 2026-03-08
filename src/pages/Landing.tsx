@@ -29,8 +29,8 @@ export default function Landing() {
       <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="Afie Wura logo" className="h-10 w-10" />
-            <span className="font-display text-xl font-bold text-primary">Afie Wura</span>
+            <img src={logo} alt="Afie Wura logo" className="h-14 w-14" />
+            <span className="font-display text-2xl font-bold text-primary">Afie Wura</span>
           </div>
           <Button onClick={() => navigate("/role-select")} className="bg-primary hover:bg-primary/90">
             Get Started <ArrowRight className="ml-2 h-4 w-4" />
