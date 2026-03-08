@@ -7,7 +7,9 @@ import {
   Receipt,
   CreditCard,
   Settings,
+  LogOut,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -42,6 +44,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const navigate = useNavigate();
   const isActive = (path: string) =>
     path === "/dashboard" ? location.pathname === "/dashboard" : location.pathname.startsWith(path);
 
@@ -129,6 +132,18 @@ export function AppSidebar() {
                 <Settings className="h-4 w-4" />
                 {!collapsed && <span>Settings</span>}
               </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Logout"
+              onClick={() => {
+                navigate("/");
+              }}
+              className="hover:bg-destructive/20 text-sidebar-foreground"
+            >
+              <LogOut className="h-4 w-4" />
+              {!collapsed && <span>Logout</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

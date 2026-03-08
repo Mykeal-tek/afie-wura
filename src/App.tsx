@@ -15,6 +15,7 @@ import Notices from "./pages/Notices";
 import Payments from "./pages/Payments";
 import Accounting from "./pages/Accounting";
 import TenantDashboard from "./pages/TenantDashboard";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/payments" element={<Payments />} />
           <Route path="/accounting" element={<Accounting />} />
           <Route path="/tenant" element={<TenantDashboard />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

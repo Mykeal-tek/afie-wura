@@ -8,23 +8,47 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
+import { PasswordStrengthIndicator, isPasswordStrong } from "@/components/PasswordStrengthIndicator";
 
 export default function Signup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const role = searchParams.get("role") || "landlord";
   const [form, setForm] = useState({ fullName: "", email: "", phone: "", password: "", confirmPassword: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
 
-  const update = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
+  const update = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    if (submitted) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!form.fullName.trim()) errs.fullName = "Full name is required";
+    if (!form.email.trim()) errs.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = "Invalid email address";
+    if (!form.phone.trim()) errs.phone = "Phone number is required";
+    if (!form.password) errs.password = "Password is required";
+    else if (!isPasswordStrong(form.password)) errs.password = "Password does not meet requirements";
+    if (!form.confirmPassword) errs.confirmPassword = "Please confirm your password";
+    else if (form.password !== form.confirmPassword) errs.confirmPassword = "Passwords do not match";
+    return errs;
+  };
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.fullName || !form.email || !form.phone || !form.password) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-    if (form.password !== form.confirmPassword) {
-      toast.error("Passwords do not match");
+    setSubmitted(true);
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      toast.error("Please fix the errors in the form");
       return;
     }
     toast.success("Account created successfully!");
@@ -49,26 +73,32 @@ export default function Signup() {
           <CardContent>
             <form onSubmit={handleSignup} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input id="fullName" placeholder="Kwame Asante" value={form.fullName} onChange={(e) => update("fullName", e.target.value)} />
+                <Label htmlFor="fullName">Full Name <span className="text-destructive">*</span></Label>
+                <Input id="fullName" placeholder="Kwame Asante" value={form.fullName} onChange={(e) => update("fullName", e.target.value)} className={errors.fullName ? "border-destructive" : ""} />
+                {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="you@example.com" value={form.email} onChange={(e) => update("email", e.target.value)} />
+                <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
+                <Input id="email" type="email" placeholder="you@example.com" value={form.email} onChange={(e) => update("email", e.target.value)} className={errors.email ? "border-destructive" : ""} />
+                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" type="tel" placeholder="024 XXX XXXX" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
+                <Label htmlFor="phone">Phone Number <span className="text-destructive">*</span></Label>
+                <Input id="phone" type="tel" placeholder="024 XXX XXXX" value={form.phone} onChange={(e) => update("phone", e.target.value)} className={errors.phone ? "border-destructive" : ""} />
+                {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" placeholder="••••••••" value={form.password} onChange={(e) => update("password", e.target.value)} />
+                <Label htmlFor="password">Password <span className="text-destructive">*</span></Label>
+                <Input id="password" type="password" placeholder="••••••••" value={form.password} onChange={(e) => update("password", e.target.value)} className={errors.password ? "border-destructive" : ""} />
+                <PasswordStrengthIndicator password={form.password} />
+                {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input id="confirmPassword" type="password" placeholder="••••••••" value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)} />
+                <Label htmlFor="confirmPassword">Confirm Password <span className="text-destructive">*</span></Label>
+                <Input id="confirmPassword" type="password" placeholder="••••••••" value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)} className={errors.confirmPassword ? "border-destructive" : ""} />
+                {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
               </div>
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90">Create Account</Button>
+              <Button type="submit" className="w-full">Create Account</Button>
             </form>
 
             <div className="my-6 flex items-center gap-3">
