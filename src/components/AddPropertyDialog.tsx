@@ -4,21 +4,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useRef } from "react";
-import { X, ImagePlus } from "lucide-react";
+import { X, ImagePlus, Loader2 } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onPropertyAdded?: () => void;
 }
 
 const defaultPropertyTypes = [
   "Apartment Block", "Villa", "Townhouse", "Single Room", "Detached House", "Semi-Detached", "Compound House",
 ];
 
-export function AddPropertyDialog({ open, onOpenChange }: Props) {
+export function AddPropertyDialog({ open, onOpenChange, onPropertyAdded }: Props) {
+  const { user } = useAuth();
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [typeOpen, setTypeOpen] = useState(false);
   const [typeValue, setTypeValue] = useState("");
@@ -27,8 +31,10 @@ export function AddPropertyDialog({ open, onOpenChange }: Props) {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [units, setUnits] = useState("");
+  const [features, setFeatures] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const allTypes = [...defaultPropertyTypes, ...customTypes];
@@ -58,7 +64,7 @@ export function AddPropertyDialog({ open, onOpenChange }: Props) {
     return errs;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
     const errs = validate();
@@ -67,7 +73,42 @@ export function AddPropertyDialog({ open, onOpenChange }: Props) {
       toast.error("Please fill in all required fields");
       return;
     }
+    if (!user) return;
+
+    setSaving(true);
+
+    // Upload images
+    const imageUrls: string[] = [];
+    for (const img of images) {
+      const fileName = `${user.id}/${Date.now()}-${img.file.name}`;
+      const { data, error } = await supabase.storage.from("property-images").upload(fileName, img.file);
+      if (!error && data) {
+        const { data: urlData } = supabase.storage.from("property-images").getPublicUrl(data.path);
+        imageUrls.push(urlData.publicUrl);
+      }
+    }
+
+    const featuresArr = features.split(",").map(f => f.trim()).filter(Boolean);
+
+    const { error } = await supabase.from("properties").insert({
+      landlord_id: user.id,
+      name: name.trim(),
+      location: location.trim(),
+      type: typeValue,
+      units: parseInt(units),
+      features: featuresArr,
+      images: imageUrls,
+    });
+
+    setSaving(false);
+
+    if (error) {
+      toast.error("Failed to add property: " + error.message);
+      return;
+    }
+
     toast.success("Property added successfully!");
+    onPropertyAdded?.();
     handleClose(false);
   };
 
@@ -80,6 +121,7 @@ export function AddPropertyDialog({ open, onOpenChange }: Props) {
       setName("");
       setLocation("");
       setUnits("");
+      setFeatures("");
       setErrors({});
       setSubmitted(false);
     }
@@ -144,12 +186,8 @@ export function AddPropertyDialog({ open, onOpenChange }: Props) {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="features">Key Features</Label>
-            <Input id="features" placeholder="e.g. Self Contain, Tiled Floor, Water Tank" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea id="description" placeholder="Describe the property..." rows={3} />
+            <Label htmlFor="features">Key Features (comma separated)</Label>
+            <Input id="features" placeholder="e.g. Self Contain, Tiled Floor, Water Tank" value={features} onChange={(e) => setFeatures(e.target.value)} />
           </div>
 
           <div className="space-y-2">
@@ -173,7 +211,10 @@ export function AddPropertyDialog({ open, onOpenChange }: Props) {
 
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
-            <Button type="submit">Add Property</Button>
+            <Button type="submit" disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Add Property
+            </Button>
           </div>
         </form>
       </DialogContent>

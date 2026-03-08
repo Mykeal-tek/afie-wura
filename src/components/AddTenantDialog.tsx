@@ -3,15 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onTenantAdded?: () => void;
 }
 
-export function AddTenantDialog({ open, onOpenChange }: Props) {
+export function AddTenantDialog({ open, onOpenChange, onTenantAdded }: Props) {
+  const { user } = useAuth();
   const [baseRent, setBaseRent] = useState("");
   const [duration, setDuration] = useState("");
   const [name, setName] = useState("");
@@ -22,6 +27,16 @@ export function AddTenantDialog({ open, onOpenChange }: Props) {
   const [moveIn, setMoveIn] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [properties, setProperties] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (open && user) {
+      supabase.from("properties").select("id, name").eq("landlord_id", user.id).then(({ data }) => {
+        setProperties(data || []);
+      });
+    }
+  }, [open, user]);
 
   const rentDue = useMemo(() => {
     const rent = parseFloat(baseRent) || 0;
@@ -42,7 +57,7 @@ export function AddTenantDialog({ open, onOpenChange }: Props) {
     return errs;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
     const errs = validate();
@@ -51,7 +66,46 @@ export function AddTenantDialog({ open, onOpenChange }: Props) {
       toast.error("Please fill in all required fields");
       return;
     }
+    if (!user) return;
+    setSaving(true);
+
+    // First create a placeholder user account for the tenant via signup
+    // For now, create a profile and tenant record with the landlord's info
+    // The tenant will need to sign up with their email to claim the account
+    
+    // Create a temporary user_id placeholder - in a real app you'd invite the tenant
+    // For now we use a generated UUID
+    const tempUserId = crypto.randomUUID();
+
+    // Insert profile
+    await supabase.from("profiles").insert({
+      user_id: tempUserId,
+      full_name: name.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
+    });
+
+    const { error } = await supabase.from("tenants").insert({
+      landlord_id: user.id,
+      user_id: tempUserId,
+      property_id: property,
+      unit: unit.trim(),
+      base_rent: parseFloat(baseRent),
+      duration: parseInt(duration),
+      rent_due: rentDue,
+      move_in: moveIn,
+      status: "Pending",
+    });
+
+    setSaving(false);
+
+    if (error) {
+      toast.error("Failed to add tenant: " + error.message);
+      return;
+    }
+
     toast.success("Tenant added successfully!");
+    onTenantAdded?.();
     handleClose(false);
   };
 
@@ -95,10 +149,9 @@ export function AddTenantDialog({ open, onOpenChange }: Props) {
               <Select value={property} onValueChange={setProperty}>
                 <SelectTrigger className={fieldError("property") ? "border-destructive" : ""}><SelectValue placeholder="Select property" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="adabraka">Adabraka Flats</SelectItem>
-                  <SelectItem value="eastlegon">East Legon Villa</SelectItem>
-                  <SelectItem value="osu">Osu Apartments</SelectItem>
-                  <SelectItem value="tema">Tema Community 25</SelectItem>
+                  {properties.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {fieldError("property") && <p className="text-xs text-destructive">{fieldError("property")}</p>}
@@ -134,7 +187,10 @@ export function AddTenantDialog({ open, onOpenChange }: Props) {
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
-            <Button type="submit">Add Tenant</Button>
+            <Button type="submit" disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Add Tenant
+            </Button>
           </div>
         </form>
       </DialogContent>
