@@ -24,6 +24,13 @@ const stats = [
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { user, role, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user && role) {
+      navigate(role === "tenant" ? "/tenant" : "/dashboard", { replace: true });
+    }
+  }, [loading, user, role, navigate]);
 
   return (
     <div className="min-h-screen bg-background">
