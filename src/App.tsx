@@ -23,6 +23,7 @@ import TenantNotices from "./pages/TenantNotices";
 import TenantPayments from "./pages/TenantPayments";
 import TenantSettings from "./pages/TenantSettings";
 import Settings from "./pages/Settings";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
