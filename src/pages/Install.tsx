@@ -57,7 +57,7 @@ const Install = () => {
         <CardContent className="space-y-4">
           {isInstalled ? (
             <div className="text-center space-y-3">
-              <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
+              <CheckCircle className="h-12 w-12 text-primary mx-auto" />
               <p className="text-muted-foreground">App is already installed!</p>
               <Button onClick={() => navigate("/")} className="w-full">
                 Open App
