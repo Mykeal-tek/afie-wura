@@ -1,6 +1,8 @@
-import { Building2, User, ArrowRight } from "lucide-react";
+import { Building2, User, ArrowRight, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.png";
 
 const roles = [
   {
@@ -25,10 +27,12 @@ export default function RoleSelect() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-lg">
+        <Button variant="ghost" size="sm" className="mb-6 text-muted-foreground" onClick={() => navigate("/")}>
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Home
+        </Button>
+
         <div className="text-center mb-10 animate-fade-in">
-          <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center mx-auto mb-4">
-            <span className="text-primary-foreground font-display font-bold text-2xl">A</span>
-          </div>
+          <img src={logo} alt="Afie Wura" className="h-16 w-16 mx-auto mb-4" />
           <h1 className="text-3xl font-display font-bold">Welcome to Afie Wura</h1>
           <p className="text-muted-foreground mt-2 font-body">How would you like to use the platform?</p>
         </div>
