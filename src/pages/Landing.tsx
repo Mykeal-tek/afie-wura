@@ -167,7 +167,7 @@ export default function Landing() {
       {/* CTA */}
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
-          <img src={logo} alt="Afie Wura" className="h-16 w-16 mx-auto mb-6 brightness-200" />
+          <img src={logo} alt="Afie Wura" className="h-20 w-20 mx-auto mb-6 brightness-200" />
           <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-lg opacity-90 mb-8 max-w-xl mx-auto font-body">
             Join landlords and tenants across Ghana who trust Afie Wura to manage their properties efficiently.
