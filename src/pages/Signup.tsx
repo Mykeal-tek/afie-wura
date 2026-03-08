@@ -85,6 +85,7 @@ export default function Signup() {
   };
 
   const handleGoogleSignup = async () => {
+    localStorage.setItem("pending_role", role);
     const { error } = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
@@ -92,6 +93,7 @@ export default function Signup() {
   };
 
   const handleAppleSignup = async () => {
+    localStorage.setItem("pending_role", role);
     const { error } = await lovable.auth.signInWithOAuth("apple", {
       redirect_uri: window.location.origin,
     });

@@ -1,6 +1,8 @@
 import { Building2, Shield, CreditCard, Bell, ArrowRight, Smartphone, Users, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 import logo from "@/assets/logo.png";
 import heroBuilding from "@/assets/hero-building.jpg";
 import tenantHappy from "@/assets/tenant-happy.jpg";
@@ -22,6 +24,13 @@ const stats = [
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { user, role, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user && role) {
+      navigate(role === "tenant" ? "/tenant" : "/dashboard", { replace: true });
+    }
+  }, [loading, user, role, navigate]);
 
   return (
     <div className="min-h-screen bg-background">
