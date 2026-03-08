@@ -2,7 +2,7 @@ import { Building2, CreditCard, MessageSquareWarning, Bell, ArrowUpRight, Clock,
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DashboardLayout } from "@/components/DashboardLayout";
+import { TenantLayout } from "@/components/TenantLayout";
 
 const rentInfo = {
   property: "Adabraka Flats - Unit 3",
@@ -46,7 +46,7 @@ const statusIcon: Record<string, React.ElementType> = {
 
 export default function TenantDashboard() {
   return (
-    <DashboardLayout>
+    <TenantLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold">Tenant Portal</h1>
@@ -161,6 +161,6 @@ export default function TenantDashboard() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </TenantLayout>
   );
 }

@@ -15,6 +15,11 @@ import Notices from "./pages/Notices";
 import Payments from "./pages/Payments";
 import Accounting from "./pages/Accounting";
 import TenantDashboard from "./pages/TenantDashboard";
+import TenantProperties from "./pages/TenantProperties";
+import TenantComplaints from "./pages/TenantComplaints";
+import TenantNotices from "./pages/TenantNotices";
+import TenantPayments from "./pages/TenantPayments";
+import TenantSettings from "./pages/TenantSettings";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -39,6 +44,11 @@ const App = () => (
           <Route path="/payments" element={<Payments />} />
           <Route path="/accounting" element={<Accounting />} />
           <Route path="/tenant" element={<TenantDashboard />} />
+          <Route path="/tenant/properties" element={<TenantProperties />} />
+          <Route path="/tenant/complaints" element={<TenantComplaints />} />
+          <Route path="/tenant/notices" element={<TenantNotices />} />
+          <Route path="/tenant/payments" element={<TenantPayments />} />
+          <Route path="/tenant/settings" element={<TenantSettings />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
