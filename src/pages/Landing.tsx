@@ -29,8 +29,8 @@ export default function Landing() {
       <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="Afie Wura logo" className="h-10 w-10" />
-            <span className="font-display text-xl font-bold text-primary">Afie Wura</span>
+            <img src={logo} alt="Afie Wura logo" className="h-14 w-14" />
+            <span className="font-display text-2xl font-bold text-primary">Afie Wura</span>
           </div>
           <Button onClick={() => navigate("/role-select")} className="bg-primary hover:bg-primary/90">
             Get Started <ArrowRight className="ml-2 h-4 w-4" />
@@ -167,7 +167,7 @@ export default function Landing() {
       {/* CTA */}
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
-          <img src={logo} alt="Afie Wura" className="h-16 w-16 mx-auto mb-6 brightness-200" />
+          <img src={logo} alt="Afie Wura" className="h-20 w-20 mx-auto mb-6 brightness-200" />
           <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-lg opacity-90 mb-8 max-w-xl mx-auto font-body">
             Join landlords and tenants across Ghana who trust Afie Wura to manage their properties efficiently.

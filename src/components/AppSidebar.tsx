@@ -49,10 +49,10 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <img src={logo} alt="Afie Wura" className="h-9 w-9" />
+          <img src={logo} alt="Afie Wura" className="h-12 w-12" />
           {!collapsed && (
             <div>
-              <h1 className="font-display text-lg font-bold text-sidebar-primary">
+              <h1 className="font-display text-xl font-bold text-sidebar-primary">
                 Afie Wura
               </h1>
               <p className="text-xs text-sidebar-foreground/60">Property Management</p>
