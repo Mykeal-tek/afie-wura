@@ -7,6 +7,7 @@ interface AuthContextType {
   session: Session | null;
   role: "landlord" | "tenant" | null;
   loading: boolean;
+  roleLoading: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -15,6 +16,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   role: null,
   loading: true,
+  roleLoading: true,
   signOut: async () => {},
 });
 
@@ -25,38 +27,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<"landlord" | "tenant" | null>(null);
   const [loading, setLoading] = useState(true);
+  const [roleLoading, setRoleLoading] = useState(true);
 
-  const fetchRole = async (userId: string) => {
+  const fetchRole = async (userId: string): Promise<"landlord" | "tenant" | null> => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
       .maybeSingle();
-    setRole(data?.role as "landlord" | "tenant" | null);
+    const r = (data?.role as "landlord" | "tenant" | null) ?? null;
+    setRole(r);
+    setRoleLoading(false);
+    return r;
+  };
+
+  const assignPendingRole = async (userId: string, userMeta: any) => {
+    const pendingRole = localStorage.getItem("pending_role") as "landlord" | "tenant" | null;
+    if (!pendingRole) return;
+    localStorage.removeItem("pending_role");
+
+    // Insert role
+    await supabase.from("user_roles").insert({ user_id: userId, role: pendingRole });
+
+    // Insert profile if not exists
+    const fullName = userMeta?.full_name || userMeta?.name || "";
+    const email = userMeta?.email || "";
+    await supabase.from("profiles").upsert(
+      { user_id: userId, full_name: fullName, email },
+      { onConflict: "user_id" }
+    );
+
+    setRole(pendingRole);
+    setRoleLoading(false);
   };
 
   useEffect(() => {
-    // Set up auth listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
+          setRoleLoading(true);
           // Use setTimeout to avoid Supabase deadlock
-          setTimeout(() => fetchRole(session.user.id), 0);
+          setTimeout(async () => {
+            const existingRole = await fetchRole(session.user.id);
+            if (!existingRole) {
+              await assignPendingRole(session.user.id, session.user.user_metadata);
+            }
+          }, 0);
         } else {
           setRole(null);
+          setRoleLoading(false);
         }
         setLoading(false);
       }
     );
 
-    // THEN check existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchRole(session.user.id);
+        const existingRole = await fetchRole(session.user.id);
+        if (!existingRole) {
+          await assignPendingRole(session.user.id, session.user.user_metadata);
+        }
+      } else {
+        setRoleLoading(false);
       }
       setLoading(false);
     });
@@ -72,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, role, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, role, loading, roleLoading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
