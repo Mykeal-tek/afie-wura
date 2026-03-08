@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import RoleSelect from "./pages/RoleSelect";
 import Login from "./pages/Login";
@@ -31,27 +33,31 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/role-select" element={<RoleSelect />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<Index />} />
-          <Route path="/properties" element={<Properties />} />
-          <Route path="/tenants" element={<Tenants />} />
-          <Route path="/complaints" element={<Complaints />} />
-          <Route path="/notices" element={<Notices />} />
-          <Route path="/payments" element={<Payments />} />
-          <Route path="/accounting" element={<Accounting />} />
-          <Route path="/tenant" element={<TenantDashboard />} />
-          <Route path="/tenant/properties" element={<TenantProperties />} />
-          <Route path="/tenant/complaints" element={<TenantComplaints />} />
-          <Route path="/tenant/notices" element={<TenantNotices />} />
-          <Route path="/tenant/payments" element={<TenantPayments />} />
-          <Route path="/tenant/settings" element={<TenantSettings />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/role-select" element={<RoleSelect />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            {/* Landlord routes */}
+            <Route path="/dashboard" element={<ProtectedRoute requiredRole="landlord"><Index /></ProtectedRoute>} />
+            <Route path="/properties" element={<ProtectedRoute requiredRole="landlord"><Properties /></ProtectedRoute>} />
+            <Route path="/tenants" element={<ProtectedRoute requiredRole="landlord"><Tenants /></ProtectedRoute>} />
+            <Route path="/complaints" element={<ProtectedRoute requiredRole="landlord"><Complaints /></ProtectedRoute>} />
+            <Route path="/notices" element={<ProtectedRoute requiredRole="landlord"><Notices /></ProtectedRoute>} />
+            <Route path="/payments" element={<ProtectedRoute requiredRole="landlord"><Payments /></ProtectedRoute>} />
+            <Route path="/accounting" element={<ProtectedRoute requiredRole="landlord"><Accounting /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute requiredRole="landlord"><Settings /></ProtectedRoute>} />
+            {/* Tenant routes */}
+            <Route path="/tenant" element={<ProtectedRoute requiredRole="tenant"><TenantDashboard /></ProtectedRoute>} />
+            <Route path="/tenant/properties" element={<ProtectedRoute requiredRole="tenant"><TenantProperties /></ProtectedRoute>} />
+            <Route path="/tenant/complaints" element={<ProtectedRoute requiredRole="tenant"><TenantComplaints /></ProtectedRoute>} />
+            <Route path="/tenant/notices" element={<ProtectedRoute requiredRole="tenant"><TenantNotices /></ProtectedRoute>} />
+            <Route path="/tenant/payments" element={<ProtectedRoute requiredRole="tenant"><TenantPayments /></ProtectedRoute>} />
+            <Route path="/tenant/settings" element={<ProtectedRoute requiredRole="tenant"><TenantSettings /></ProtectedRoute>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
