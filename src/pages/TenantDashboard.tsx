@@ -46,7 +46,7 @@ const statusIcon: Record<string, React.ElementType> = {
 
 export default function TenantDashboard() {
   return (
-    <DashboardLayout>
+    <TenantLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold">Tenant Portal</h1>
