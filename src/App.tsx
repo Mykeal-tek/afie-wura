@@ -15,6 +15,11 @@ import Notices from "./pages/Notices";
 import Payments from "./pages/Payments";
 import Accounting from "./pages/Accounting";
 import TenantDashboard from "./pages/TenantDashboard";
+import TenantProperties from "./pages/TenantProperties";
+import TenantComplaints from "./pages/TenantComplaints";
+import TenantNotices from "./pages/TenantNotices";
+import TenantPayments from "./pages/TenantPayments";
+import TenantSettings from "./pages/TenantSettings";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
