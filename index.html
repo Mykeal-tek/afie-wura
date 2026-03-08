@@ -27,6 +27,47 @@
 </head>
 
   <body>
+    <div id="splash-screen" style="
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, hsl(180, 30%, 12%) 0%, hsl(178, 82%, 25%) 50%, hsl(20, 90%, 48%) 100%);
+      transition: opacity 0.5s ease-out;
+    ">
+      <img src="/pwa-icon-512.png" alt="Afie Wura" style="
+        width: 96px; height: 96px; border-radius: 24px;
+        animation: splash-bounce 1.2s ease-in-out infinite;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      " />
+      <h1 style="
+        margin-top: 24px; font-size: 28px; font-weight: 700;
+        color: white; font-family: 'Playfair Display', serif; letter-spacing: 0.02em;
+      ">Afie Wura</h1>
+      <p style="
+        margin-top: 8px; font-size: 14px; color: rgba(255,255,255,0.7);
+        font-family: 'Source Sans 3', sans-serif;
+      ">Property Rental Management</p>
+      <div style="
+        margin-top: 32px; width: 48px; height: 4px; border-radius: 4px;
+        background: rgba(255,255,255,0.2); overflow: hidden;
+      ">
+        <div style="
+          width: 100%; height: 100%; border-radius: 4px;
+          background: hsl(40, 92%, 49%);
+          animation: splash-loading 1.5s ease-in-out infinite;
+        "></div>
+      </div>
+      <style>
+        @keyframes splash-bounce {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-12px) scale(1.05); }
+        }
+        @keyframes splash-loading {
+          0% { transform: translateX(-100%); }
+          50% { transform: translateX(0); }
+          100% { transform: translateX(100%); }
+        }
+      </style>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
