@@ -53,6 +53,14 @@ const TenantPayments = () => {
     if (user) {
       supabase.from("tenants").select("*, properties(name)").eq("user_id", user.id).maybeSingle().then(({ data }) => {
         setTenantInfo(data);
+        if (data?.landlord_id) {
+          supabase
+            .from("payment_details")
+            .select("*")
+            .eq("landlord_id", data.landlord_id)
+            .eq("is_active", true)
+            .then(({ data: pd }) => setLandlordPaymentDetails(pd || []));
+        }
       });
     }
   }, [user]);
