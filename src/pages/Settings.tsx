@@ -171,6 +171,9 @@ export default function Settings() {
             </CardContent>
           </Card>
 
+          {/* Payment Details */}
+          <PaymentDetailsSettings />
+
           {/* Security */}
           <Card>
             <CardHeader>
