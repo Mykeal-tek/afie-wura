@@ -35,6 +35,7 @@ const TenantPayments = () => {
   const [filterTo, setFilterTo] = useState("");
   const [tenantInfo, setTenantInfo] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [landlordPaymentDetails, setLandlordPaymentDetails] = useState<any[]>([]);
 
   const fetchPayments = async () => {
     if (!user) return;
@@ -52,6 +53,14 @@ const TenantPayments = () => {
     if (user) {
       supabase.from("tenants").select("*, properties(name)").eq("user_id", user.id).maybeSingle().then(({ data }) => {
         setTenantInfo(data);
+        if (data?.landlord_id) {
+          supabase
+            .from("payment_details")
+            .select("*")
+            .eq("landlord_id", data.landlord_id)
+            .eq("is_active", true)
+            .then(({ data: pd }) => setLandlordPaymentDetails(pd || []));
+        }
       });
     }
   }, [user]);
@@ -209,16 +218,44 @@ const TenantPayments = () => {
                 <TabsTrigger value="momo" className="gap-1.5"><Smartphone className="h-4 w-4" /> MoMo</TabsTrigger>
                 <TabsTrigger value="card" className="gap-1.5"><CreditCard className="h-4 w-4" /> Card</TabsTrigger>
               </TabsList>
-              <TabsContent value="momo" className="mt-3">
+              <TabsContent value="momo" className="mt-3 space-y-3">
+                {landlordPaymentDetails.filter(d => d.method === "momo").length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">Send payment to:</p>
+                    {landlordPaymentDetails.filter(d => d.method === "momo").map((d) => (
+                      <div key={d.id} className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-1">
+                        <p className="text-xs text-muted-foreground">{d.provider}</p>
+                        <p className="font-semibold text-sm">{d.account_name}</p>
+                        <p className="font-mono text-sm text-primary">{d.account_number}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">No MoMo details provided by landlord yet.</p>
+                )}
                 <Button className="w-full" onClick={() => handlePay("momo")} disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Smartphone className="h-4 w-4 mr-2" />}
-                  Pay via MoMo
+                  Confirm MoMo Payment
                 </Button>
               </TabsContent>
-              <TabsContent value="card" className="mt-3">
+              <TabsContent value="card" className="mt-3 space-y-3">
+                {landlordPaymentDetails.filter(d => d.method === "card").length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">Send payment to:</p>
+                    {landlordPaymentDetails.filter(d => d.method === "card").map((d) => (
+                      <div key={d.id} className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-1">
+                        <p className="text-xs text-muted-foreground">{d.provider}</p>
+                        <p className="font-semibold text-sm">{d.account_name}</p>
+                        <p className="font-mono text-sm text-primary">{d.account_number}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">No bank/card details provided by landlord yet.</p>
+                )}
                 <Button className="w-full" onClick={() => handlePay("card")} disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CreditCard className="h-4 w-4 mr-2" />}
-                  Pay via Card
+                  Confirm Card Payment
                 </Button>
               </TabsContent>
             </Tabs>

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Sun, Moon, Palette, Bell, User, Shield } from "lucide-react";
 import { toast } from "sonner";
+import PaymentDetailsSettings from "@/components/PaymentDetailsSettings";
 
 const colorThemes = [
   { value: "default", label: "Ocean & Sand", primary: "20 90% 48%", accent: "47 100% 96%" },
@@ -169,6 +170,9 @@ export default function Settings() {
               ))}
             </CardContent>
           </Card>
+
+          {/* Payment Details */}
+          <PaymentDetailsSettings />
 
           {/* Security */}
           <Card>
