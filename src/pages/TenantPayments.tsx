@@ -35,6 +35,7 @@ const TenantPayments = () => {
   const [filterTo, setFilterTo] = useState("");
   const [tenantInfo, setTenantInfo] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [landlordPaymentDetails, setLandlordPaymentDetails] = useState<any[]>([]);
 
   const fetchPayments = async () => {
     if (!user) return;
