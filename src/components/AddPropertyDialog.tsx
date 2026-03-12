@@ -39,6 +39,7 @@ export function AddPropertyDialog({ open, onOpenChange, onPropertyAdded }: Props
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [profileComplete, setProfileComplete] = useState<boolean | null>(null);
+  const [gettingLocation, setGettingLocation] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const allTypes = [...defaultPropertyTypes, ...customTypes];
