@@ -179,7 +179,10 @@ export default function Settings() {
                     onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))}
                   />
                 </div>
-                <Button type="submit" className="w-full">Save Profile</Button>
+                <Button type="submit" className="w-full" disabled={profileSaving}>
+                  {profileSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                  Save Profile
+                </Button>
               </form>
             </CardContent>
           </Card>
