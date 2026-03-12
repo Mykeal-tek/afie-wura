@@ -10,6 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import { Sun, Moon, Palette, Bell, User, Shield } from "lucide-react";
 import { toast } from "sonner";
 import PaymentDetailsSettings from "@/components/PaymentDetailsSettings";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const colorThemes = [
   { value: "default", label: "Ocean & Sand", primary: "20 90% 48%", accent: "47 100% 96%" },
