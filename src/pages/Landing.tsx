@@ -24,13 +24,22 @@ const stats = [
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { user, role, loading } = useAuth();
+  const { user, role, loading, roleLoading } = useAuth();
 
   useEffect(() => {
-    if (!loading && user && role) {
+    if (!loading && !roleLoading && user && role) {
       navigate(role === "tenant" ? "/tenant" : "/dashboard", { replace: true });
     }
-  }, [loading, user, role, navigate]);
+  }, [loading, roleLoading, user, role, navigate]);
+
+  // Show loading while auth or role is being resolved (e.g. after OAuth redirect)
+  if (loading || (user && roleLoading)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
