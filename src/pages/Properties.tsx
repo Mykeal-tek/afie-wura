@@ -87,6 +87,17 @@ const Properties = () => {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
+                    {property.google_location && (
+                      <a
+                        href={property.google_location}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink className="h-3 w-3" /> View on Google Maps
+                      </a>
+                    )}
                     {(property.features || []).map((f: string) => (
                       <Badge key={f} variant="secondary" className="text-xs font-normal">{f}</Badge>
                     ))}
