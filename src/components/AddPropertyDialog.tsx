@@ -183,16 +183,57 @@ export function AddPropertyDialog({ open, onOpenChange, onPropertyAdded }: Props
           </div>
           <div className="space-y-2">
             <Label htmlFor="google-location" className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-primary" /> Google Maps Link
+              <MapPin className="h-3.5 w-3.5 text-primary" /> Google Maps Location
             </Label>
-            <Input
-              id="google-location"
-              placeholder="Paste Google Maps share link here"
-              value={googleLocation}
-              onChange={(e) => setGoogleLocation(e.target.value)}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="google-location"
+                placeholder="Paste Google Maps link or use location button"
+                value={googleLocation}
+                onChange={(e) => setGoogleLocation(e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                disabled={gettingLocation}
+                onClick={() => {
+                  if (!navigator.geolocation) {
+                    toast.error("Geolocation is not supported by your browser");
+                    return;
+                  }
+                  setGettingLocation(true);
+                  navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                      const { latitude, longitude } = position.coords;
+                      const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                      setGoogleLocation(mapsLink);
+                      setGettingLocation(false);
+                      toast.success("Location captured successfully!");
+                    },
+                    (error) => {
+                      setGettingLocation(false);
+                      if (error.code === error.PERMISSION_DENIED) {
+                        toast.error("Location permission denied. Please allow location access and try again.");
+                      } else {
+                        toast.error("Could not get your location. Please try again.");
+                      }
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                  );
+                }}
+                title="Use my current location"
+              >
+                {gettingLocation ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Navigation className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground">
-              Open Google Maps → Find your property → Click "Share" → Copy link and paste here
+              Paste a Google Maps link, or click the location button to share your current position
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
