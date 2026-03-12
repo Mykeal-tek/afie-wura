@@ -22,12 +22,36 @@ const colorThemes = [
 ];
 
 export default function Settings() {
+  const { user } = useAuth();
   const [darkMode, setDarkMode] = useState(() =>
     document.documentElement.classList.contains("dark")
   );
   const [selectedTheme, setSelectedTheme] = useState("default");
   const [notifications, setNotifications] = useState({ email: true, sms: false, push: true });
-  const [profile, setProfile] = useState({ name: "Admin User", email: "admin@afiewura.com", phone: "024 555 0000" });
+  const [profile, setProfile] = useState({ name: "", email: "", phone: "" });
+  const [profileSaving, setProfileSaving] = useState(false);
+
+  // Load profile from database
+  useEffect(() => {
+    if (!user) return;
+    const loadProfile = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, email, phone")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (data) {
+        setProfile({
+          name: data.full_name || "",
+          email: data.email || user.email || "",
+          phone: data.phone || "",
+        });
+      } else {
+        setProfile(p => ({ ...p, email: user.email || "" }));
+      }
+    };
+    loadProfile();
+  }, [user]);
 
   useEffect(() => {
     if (darkMode) {
@@ -48,9 +72,24 @@ export default function Settings() {
     toast.success(`Theme changed to ${theme?.label}`);
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Profile updated successfully!");
+    if (!user) return;
+    if (!profile.name.trim() || !profile.email.trim() || !profile.phone.trim()) {
+      toast.error("Please fill in all profile fields (name, email, phone)");
+      return;
+    }
+    setProfileSaving(true);
+    const { error } = await supabase.from("profiles").upsert(
+      { user_id: user.id, full_name: profile.name.trim(), email: profile.email.trim(), phone: profile.phone.trim() },
+      { onConflict: "user_id" }
+    );
+    setProfileSaving(false);
+    if (error) {
+      toast.error("Failed to save profile");
+    } else {
+      toast.success("Profile updated successfully!");
+    }
   };
 
   return (
