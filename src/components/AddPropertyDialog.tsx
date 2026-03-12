@@ -2,20 +2,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useState, useRef } from "react";
-import { X, ImagePlus, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { X, ImagePlus, Loader2, MapPin, AlertCircle } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onPropertyAdded?: () => void;
 }
+
+const MAX_IMAGES = 3;
 
 const defaultPropertyTypes = [
   "Apartment Block", "Villa", "Townhouse", "Single Room", "Detached House", "Semi-Detached", "Compound House",
@@ -30,20 +32,46 @@ export function AddPropertyDialog({ open, onOpenChange, onPropertyAdded }: Props
   const [customTypes, setCustomTypes] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
+  const [googleLocation, setGoogleLocation] = useState("");
   const [units, setUnits] = useState("");
   const [features, setFeatures] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [profileComplete, setProfileComplete] = useState<boolean | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const allTypes = [...defaultPropertyTypes, ...customTypes];
   const filteredTypes = allTypes.filter((t) => t.toLowerCase().includes(typeSearch.toLowerCase()));
   const showAddCustom = typeSearch.length > 0 && !allTypes.some((t) => t.toLowerCase() === typeSearch.toLowerCase());
 
+  // Check if landlord profile is complete
+  useEffect(() => {
+    if (!user || !open) return;
+    const checkProfile = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, email, phone")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      
+      if (!data || !data.full_name?.trim() || !data.email?.trim() || !data.phone?.trim()) {
+        setProfileComplete(false);
+      } else {
+        setProfileComplete(true);
+      }
+    };
+    checkProfile();
+  }, [user, open]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const newImages = files.map((file) => ({ file, preview: URL.createObjectURL(file) }));
+    const remaining = MAX_IMAGES - images.length;
+    if (files.length > remaining) {
+      toast.error(`You can only upload up to ${MAX_IMAGES} images. ${remaining} slot(s) remaining.`);
+    }
+    const allowed = files.slice(0, remaining);
+    const newImages = allowed.map((file) => ({ file, preview: URL.createObjectURL(file) }));
     setImages((prev) => [...prev, ...newImages]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -98,6 +126,7 @@ export function AddPropertyDialog({ open, onOpenChange, onPropertyAdded }: Props
       units: parseInt(units),
       features: featuresArr,
       images: imageUrls,
+      google_location: googleLocation.trim(),
     });
 
     setSaving(false);
@@ -120,15 +149,19 @@ export function AddPropertyDialog({ open, onOpenChange, onPropertyAdded }: Props
       setTypeSearch("");
       setName("");
       setLocation("");
+      setGoogleLocation("");
       setUnits("");
       setFeatures("");
       setErrors({});
       setSubmitted(false);
+      setProfileComplete(null);
     }
     onOpenChange(val);
   };
 
   const fieldError = (field: string) => submitted && errors[field] ? errors[field] : "";
+
+  const canUploadImages = profileComplete === true;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -146,6 +179,20 @@ export function AddPropertyDialog({ open, onOpenChange, onPropertyAdded }: Props
             <Label htmlFor="location">Location <span className="text-destructive">*</span></Label>
             <Input id="location" placeholder="e.g. Adabraka, Accra" value={location} onChange={(e) => setLocation(e.target.value)} className={fieldError("location") ? "border-destructive" : ""} />
             {fieldError("location") && <p className="text-xs text-destructive">{fieldError("location")}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="google-location" className="flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 text-primary" /> Google Maps Link
+            </Label>
+            <Input
+              id="google-location"
+              placeholder="Paste Google Maps share link here"
+              value={googleLocation}
+              onChange={(e) => setGoogleLocation(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Open Google Maps → Find your property → Click "Share" → Copy link and paste here
+            </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -191,7 +238,15 @@ export function AddPropertyDialog({ open, onOpenChange, onPropertyAdded }: Props
           </div>
 
           <div className="space-y-2">
-            <Label>Property Images</Label>
+            <Label>Property Images <span className="text-xs text-muted-foreground">(max {MAX_IMAGES})</span></Label>
+            {!canUploadImages && profileComplete === false && (
+              <Alert variant="destructive" className="py-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-xs">
+                  Please complete your profile (name, email & phone) in Settings before uploading images.
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="grid grid-cols-3 gap-2">
               {images.map((img, i) => (
                 <div key={i} className="relative aspect-video rounded-lg overflow-hidden border bg-muted">
@@ -201,10 +256,26 @@ export function AddPropertyDialog({ open, onOpenChange, onPropertyAdded }: Props
                   </button>
                 </div>
               ))}
-              <button type="button" onClick={() => fileInputRef.current?.click()} className="aspect-video rounded-lg border-2 border-dashed border-input flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors">
-                <ImagePlus className="h-5 w-5" />
-                <span className="text-xs">Add Photo</span>
-              </button>
+              {images.length < MAX_IMAGES && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!canUploadImages) {
+                      toast.error("Complete your profile in Settings before uploading images.");
+                      return;
+                    }
+                    fileInputRef.current?.click();
+                  }}
+                  className={`aspect-video rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-colors ${
+                    canUploadImages
+                      ? "border-input text-muted-foreground hover:border-primary hover:text-primary"
+                      : "border-muted text-muted-foreground/50 cursor-not-allowed"
+                  }`}
+                >
+                  <ImagePlus className="h-5 w-5" />
+                  <span className="text-xs">Add Photo</span>
+                </button>
+              )}
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
           </div>

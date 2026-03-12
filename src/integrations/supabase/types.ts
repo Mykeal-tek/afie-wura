@@ -243,6 +243,7 @@ export type Database = {
         Row: {
           created_at: string
           features: string[] | null
+          google_location: string | null
           id: string
           images: string[] | null
           landlord_id: string
@@ -256,6 +257,7 @@ export type Database = {
         Insert: {
           created_at?: string
           features?: string[] | null
+          google_location?: string | null
           id?: string
           images?: string[] | null
           landlord_id: string
@@ -269,6 +271,7 @@ export type Database = {
         Update: {
           created_at?: string
           features?: string[] | null
+          google_location?: string | null
           id?: string
           images?: string[] | null
           landlord_id?: string
