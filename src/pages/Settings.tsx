@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Sun, Moon, Palette, Bell, User, Shield } from "lucide-react";
+import { Sun, Moon, Palette, Bell, User, Shield, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import PaymentDetailsSettings from "@/components/PaymentDetailsSettings";
 import { supabase } from "@/integrations/supabase/client";
