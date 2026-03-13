@@ -183,10 +183,10 @@ export default function AdminDashboard() {
       <div className="p-6 max-w-7xl mx-auto space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard title="Landlords" value={landlords.length} icon={<Users className="h-5 w-5" />} />
-          <StatCard title="Tenants" value={tenants.length} icon={<Users className="h-5 w-5" />} />
-          <StatCard title="Properties" value={properties.length} icon={<Building2 className="h-5 w-5" />} />
-          <StatCard title="Active Subs" value={users.filter(u => u.subscription).length} icon={<CreditCard className="h-5 w-5" />} />
+          <StatCard title="Landlords" value={landlords.length} icon={Users} />
+          <StatCard title="Tenants" value={tenants.length} icon={Users} />
+          <StatCard title="Properties" value={properties.length} icon={Building2} />
+          <StatCard title="Active Subs" value={users.filter(u => u.subscription).length} icon={CreditCard} />
         </div>
 
         <Tabs defaultValue="landlords">

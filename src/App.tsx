@@ -24,6 +24,8 @@ import TenantPayments from "./pages/TenantPayments";
 import TenantSettings from "./pages/TenantSettings";
 import Settings from "./pages/Settings";
 import Install from "./pages/Install";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
