@@ -25,7 +25,7 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<"landlord" | "tenant" | null>(null);
+  const [role, setRole] = useState<"landlord" | "tenant" | "admin" | null>(null);
   const [loading, setLoading] = useState(true);
   const [roleLoading, setRoleLoading] = useState(true);
 
