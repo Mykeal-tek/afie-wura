@@ -5,7 +5,7 @@ import type { User, Session } from "@supabase/supabase-js";
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  role: "landlord" | "tenant" | null;
+  role: "landlord" | "tenant" | "admin" | null;
   loading: boolean;
   roleLoading: boolean;
   signOut: () => Promise<void>;
