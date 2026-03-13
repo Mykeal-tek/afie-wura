@@ -18,7 +18,8 @@ export function ProtectedRoute({ children, requiredRole }: { children: React.Rea
   if (!role) return <Navigate to="/role-select" replace />;
 
   if (requiredRole && role !== requiredRole) {
-    return <Navigate to={role === "tenant" ? "/tenant" : "/dashboard"} replace />;
+    const redirect = role === "admin" ? "/admin" : role === "tenant" ? "/tenant" : "/dashboard";
+    return <Navigate to={redirect} replace />;
   }
 
   return <>{children}</>;

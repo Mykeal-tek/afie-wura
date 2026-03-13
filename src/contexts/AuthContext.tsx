@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const assignPendingRole = async (userId: string, userMeta: any) => {
-    const pendingRole = localStorage.getItem("pending_role") as "landlord" | "tenant" | null;
+    const pendingRole = localStorage.getItem("pending_role") as "landlord" | "tenant" | "admin" | null;
     if (!pendingRole) return;
     localStorage.removeItem("pending_role");
 
