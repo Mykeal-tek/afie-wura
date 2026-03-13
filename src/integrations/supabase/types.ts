@@ -284,6 +284,92 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          sent: boolean
+          subscription_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          sent?: boolean
+          subscription_id?: string | null
+          title?: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          sent?: boolean
+          subscription_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_notifications_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          duration_months: number
+          end_date: string
+          id: string
+          payment_method: string | null
+          payment_reference: string | null
+          start_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          duration_months?: number
+          end_date: string
+          id?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          duration_months?: number
+          end_date?: string
+          id?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tenants: {
         Row: {
           base_rent: number
