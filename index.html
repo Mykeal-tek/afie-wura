@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Afie Wura" />
+    <meta name="theme-color" content="#0d9488" />
+    <link rel="apple-touch-icon" href="/pwa-icon-192.png" />
+    <title>Afie Wura - Property Rental Management</title>
+    <meta name="description" content="Complete property rental management system for landlords and tenants in Ghana">
+    <meta name="author" content="Afie Wura" />
+
+    
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dbfb1aee-5598-4d91-84d5-ab7427a47cea/id-preview-082dcc01--2d24d9bc-686d-44fd-baee-298bb07d48da.lovable.app-1773011906937.png">
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@Lovable" />
+    <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dbfb1aee-5598-4d91-84d5-ab7427a47cea/id-preview-082dcc01--2d24d9bc-686d-44fd-baee-298bb07d48da.lovable.app-1773011906937.png">
+    <meta property="og:title" content="Afie Wura - Property Rental Management">
+  <meta name="twitter:title" content="Afie Wura - Property Rental Management">
+  <meta property="og:description" content="Complete property rental management system for landlords and tenants in Ghana">
+  <meta name="twitter:description" content="Complete property rental management system for landlords and tenants in Ghana">
+</head>
+
+  <body>
+    <div id="splash-screen" style="
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, hsl(180, 30%, 12%) 0%, hsl(178, 82%, 25%) 50%, hsl(20, 90%, 48%) 100%);
+      transition: opacity 0.5s ease-out;
+    ">
+      <img src="/pwa-icon-512.png" alt="Afie Wura" style="
+        width: 96px; height: 96px; border-radius: 24px;
+        animation: splash-bounce 1.2s ease-in-out infinite;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      " />
+      <h1 style="
+        margin-top: 24px; font-size: 28px; font-weight: 700;
+        color: white; font-family: 'Playfair Display', serif; letter-spacing: 0.02em;
+      ">Afie Wura</h1>
+      <p style="
+        margin-top: 8px; font-size: 14px; color: rgba(255,255,255,0.7);
+        font-family: 'Source Sans 3', sans-serif;
+      ">Property Rental Management</p>
+      <div style="
+        margin-top: 32px; width: 48px; height: 4px; border-radius: 4px;
+        background: rgba(255,255,255,0.2); overflow: hidden;
+      ">
+        <div style="
+          width: 100%; height: 100%; border-radius: 4px;
+          background: hsl(40, 92%, 49%);
+          animation: splash-loading 1.5s ease-in-out infinite;
+        "></div>
+      </div>
+      <style>
+        @keyframes splash-bounce {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-12px) scale(1.05); }
+        }
+        @keyframes splash-loading {
+          0% { transform: translateX(-100%); }
+          50% { transform: translateX(0); }
+          100% { transform: translateX(100%); }
+        }
+      </style>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
