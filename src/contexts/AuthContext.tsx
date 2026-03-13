@@ -5,7 +5,7 @@ import type { User, Session } from "@supabase/supabase-js";
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  role: "landlord" | "tenant" | null;
+  role: "landlord" | "tenant" | "admin" | null;
   loading: boolean;
   roleLoading: boolean;
   signOut: () => Promise<void>;
@@ -25,24 +25,24 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<"landlord" | "tenant" | null>(null);
+  const [role, setRole] = useState<"landlord" | "tenant" | "admin" | null>(null);
   const [loading, setLoading] = useState(true);
   const [roleLoading, setRoleLoading] = useState(true);
 
-  const fetchRole = async (userId: string): Promise<"landlord" | "tenant" | null> => {
+  const fetchRole = async (userId: string): Promise<"landlord" | "tenant" | "admin" | null> => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
       .maybeSingle();
-    const r = (data?.role as "landlord" | "tenant" | null) ?? null;
+    const r = (data?.role as "landlord" | "tenant" | "admin" | null) ?? null;
     setRole(r);
     setRoleLoading(false);
     return r;
   };
 
   const assignPendingRole = async (userId: string, userMeta: any) => {
-    const pendingRole = localStorage.getItem("pending_role") as "landlord" | "tenant" | null;
+    const pendingRole = localStorage.getItem("pending_role") as "landlord" | "tenant" | "admin" | null;
     if (!pendingRole) return;
     localStorage.removeItem("pending_role");
 
