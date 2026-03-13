@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
-export function ProtectedRoute({ children, requiredRole }: { children: React.ReactNode; requiredRole?: "landlord" | "tenant" }) {
+export function ProtectedRoute({ children, requiredRole }: { children: React.ReactNode; requiredRole?: "landlord" | "tenant" | "admin" }) {
   const { user, role, loading, roleLoading } = useAuth();
 
   if (loading || roleLoading) {

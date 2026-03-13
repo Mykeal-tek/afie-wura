@@ -29,13 +29,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [roleLoading, setRoleLoading] = useState(true);
 
-  const fetchRole = async (userId: string): Promise<"landlord" | "tenant" | null> => {
+  const fetchRole = async (userId: string): Promise<"landlord" | "tenant" | "admin" | null> => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
       .maybeSingle();
-    const r = (data?.role as "landlord" | "tenant" | null) ?? null;
+    const r = (data?.role as "landlord" | "tenant" | "admin" | null) ?? null;
     setRole(r);
     setRoleLoading(false);
     return r;
