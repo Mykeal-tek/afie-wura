@@ -2,7 +2,7 @@ import { Building2, Shield, CreditCard, Bell, ArrowRight, Smartphone, Users, Che
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import logo from "@/assets/logo.png";
 import heroBuilding from "@/assets/hero-building.jpg";
 import tenantHappy from "@/assets/tenant-happy.jpg";
@@ -25,12 +25,22 @@ const stats = [
 export default function Landing() {
   const navigate = useNavigate();
   const { user, role, loading, roleLoading } = useAuth();
+  const heroImages = [heroBuilding, tenantHappy, mobilePayment];
+  const [heroIndex, setHeroIndex] = useState(0);
 
   useEffect(() => {
     if (!loading && !roleLoading && user && role) {
       navigate(role === "tenant" ? "/tenant" : "/dashboard", { replace: true });
     }
   }, [loading, roleLoading, user, role, navigate]);
+
+  // Cycle hero images
+  useEffect(() => {
+    const id = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [heroImages.length]);
 
   // Show loading while auth or role is being resolved (e.g. after OAuth redirect)
   if (loading || (user && roleLoading)) {
@@ -59,7 +69,16 @@ export default function Landing() {
       {/* Hero with image */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroBuilding} alt="Modern apartment building in Ghana" className="w-full h-full object-cover" />
+          {heroImages.map((img, idx) => (
+            <img
+              key={img}
+              src={img}
+              alt="Afie Wura hero"
+              className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[1200ms] ${
+                idx === heroIndex ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          ))}
           <div className="absolute inset-0 bg-gradient-to-r from-foreground/90 via-foreground/70 to-foreground/30" />
         </div>
         <div className="relative container mx-auto px-4 py-24 md:py-40">
