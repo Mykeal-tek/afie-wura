@@ -207,8 +207,8 @@ export default function Landing() {
             <img src={logo} alt="Afie Wura" className="h-8 w-8" />
             <span className="font-display font-bold text-primary">Afie Wura</span>
           </div>
-          <p className="text-muted-foreground text-sm font-body">
-            © 2026 Afie Wura. All rights reserved.
+          <p className="text-muted-foreground text-sm font-body text-center sm:text-right">
+            © 2026 Afie Wura. All rights reserved. Developed by MK Studio.
           </p>
         </div>
       </footer>
