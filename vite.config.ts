@@ -6,6 +6,7 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: "/afie-wura/",
   server: {
     host: "::",
     port: 8080,
@@ -30,7 +31,7 @@ export default defineConfig(({ mode }) => ({
         background_color: "#ffffff",
         display: "standalone",
         orientation: "portrait",
-        start_url: "/",
+        start_url: "/afie-wura/",
         icons: [
           {
             src: "pwa-icon-192.png",

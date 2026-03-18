@@ -36,7 +36,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/afie-wura">
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Landing />} />
