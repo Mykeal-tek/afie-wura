@@ -5,6 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import logo from "@/assets/logo.png";
 import heroBuilding from "@/assets/hero-building.jpg";
+const landlordImage = "https://images.unsplash.com/photo-1529429617124-aee01f1dfea0?auto=format&fit=crop&w=1600&q=80";
+const tenantImage = "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1600&q=80";
 
 const features = [
   { icon: Building2, title: "Property Management", desc: "Track all your properties, units, and tenants in one place" },
@@ -172,7 +174,7 @@ export default function Landing() {
               </Button>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-lg animate-fade-in" style={{ animationDelay: "200ms" }}>
-              <img src={tenantHappy} alt="Landlord handing keys to happy tenants" className="w-full h-80 object-cover" />
+              <img src={landlordImage} alt="Modern apartments exterior" className="w-full h-80 object-cover" />
             </div>
           </div>
         </div>
@@ -183,7 +185,7 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="rounded-2xl overflow-hidden shadow-lg order-2 lg:order-1 animate-fade-in" style={{ animationDelay: "200ms" }}>
-              <img src={mobilePayment} alt="Mobile money payment on smartphone" className="w-full h-80 object-cover" />
+              <img src={tenantImage} alt="Modern apartment interior" className="w-full h-80 object-cover" />
             </div>
             <div className="order-1 lg:order-2 animate-fade-in">
               <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
