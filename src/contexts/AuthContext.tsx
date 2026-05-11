@@ -36,6 +36,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq("user_id", userId)
       .maybeSingle();
     const r = (data?.role as "landlord" | "tenant" | "admin" | null) ?? null;
+
+    // If this was a Google sign-in from the admin login page, enforce admin-only
+    const pendingAdminCheck = localStorage.getItem("pending_admin_check");
+    if (pendingAdminCheck) {
+      localStorage.removeItem("pending_admin_check");
+      if (r !== "admin") {
+        await supabase.auth.signOut();
+        setRole(null);
+        setRoleLoading(false);
+        return null;
+      }
+    }
+
     setRole(r);
     setRoleLoading(false);
     return r;
