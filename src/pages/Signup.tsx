@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 import { PasswordStrengthIndicator, isPasswordStrong } from "@/components/PasswordStrengthIndicator";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -20,6 +19,7 @@ export default function Signup() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL ?? "/"}`;
 
   const update = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -86,16 +86,18 @@ export default function Signup() {
 
   const handleGoogleSignup = async () => {
     localStorage.setItem("pending_role", role);
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo },
     });
     if (error) toast.error("Google sign-up failed");
   };
 
   const handleAppleSignup = async () => {
     localStorage.setItem("pending_role", role);
-    const { error } = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: window.location.origin,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "apple",
+      options: { redirectTo },
     });
     if (error) toast.error("Apple sign-up failed");
   };

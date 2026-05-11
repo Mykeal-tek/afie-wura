@@ -9,7 +9,6 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -18,6 +17,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL ?? "/"}`;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,16 +44,18 @@ export default function Login() {
 
   const handleGoogleLogin = async () => {
     localStorage.setItem("pending_role", role);
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo },
     });
     if (error) toast.error("Google sign-in failed");
   };
 
   const handleAppleLogin = async () => {
     localStorage.setItem("pending_role", role);
-    const { error } = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: window.location.origin,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "apple",
+      options: { redirectTo },
     });
     if (error) toast.error("Apple sign-in failed");
   };
