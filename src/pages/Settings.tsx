@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Sun, Moon, Palette, Bell, User, Shield, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -30,6 +29,8 @@ export default function Settings() {
   const [notifications, setNotifications] = useState({ email: true, sms: false, push: true });
   const [profile, setProfile] = useState({ name: "", email: "", phone: "" });
   const [profileSaving, setProfileSaving] = useState(false);
+  const [passwords, setPasswords] = useState({ newPassword: "", confirmPassword: "" });
+  const [passwordSaving, setPasswordSaving] = useState(false);
 
   // Load profile from database
   useEffect(() => {
@@ -89,6 +90,31 @@ export default function Settings() {
       toast.error("Failed to save profile");
     } else {
       toast.success("Profile updated successfully!");
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!passwords.newPassword || !passwords.confirmPassword) {
+      toast.error("Please fill in all password fields");
+      return;
+    }
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    if (passwords.newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    setPasswordSaving(true);
+    const { error } = await supabase.auth.updateUser({ password: passwords.newPassword });
+    setPasswordSaving(false);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Password updated successfully!");
+      setPasswords({ newPassword: "", confirmPassword: "" });
     }
   };
 
@@ -224,28 +250,35 @@ export default function Settings() {
               <CardTitle className="flex items-center gap-2 font-display">
                 <Shield className="h-5 w-5 text-primary" /> Security
               </CardTitle>
-              <CardDescription>Manage your account security</CardDescription>
+              <CardDescription>Change your account password</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="current-pw">Current Password</Label>
-                <Input id="current-pw" type="password" placeholder="••••••••" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="new-pw">New Password</Label>
-                <Input id="new-pw" type="password" placeholder="••••••••" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirm-pw">Confirm New Password</Label>
-                <Input id="confirm-pw" type="password" placeholder="••••••••" />
-              </div>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => toast.success("Password updated successfully!")}
-              >
-                Change Password
-              </Button>
+            <CardContent>
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-pw">New Password</Label>
+                  <Input
+                    id="new-pw"
+                    type="password"
+                    placeholder="••••••••"
+                    value={passwords.newPassword}
+                    onChange={(e) => setPasswords((p) => ({ ...p, newPassword: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-pw">Confirm New Password</Label>
+                  <Input
+                    id="confirm-pw"
+                    type="password"
+                    placeholder="••••••••"
+                    value={passwords.confirmPassword}
+                    onChange={(e) => setPasswords((p) => ({ ...p, confirmPassword: e.target.value }))}
+                  />
+                </div>
+                <Button type="submit" variant="outline" className="w-full" disabled={passwordSaving}>
+                  {passwordSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  Change Password
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </div>

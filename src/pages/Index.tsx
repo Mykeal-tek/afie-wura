@@ -43,22 +43,20 @@ const Index = () => {
         complaints: openComplaints,
       });
 
-      // Get tenant names for recent payments
-      const paymentsWithNames = await Promise.all(
-        (paymentsRes.data || []).map(async (p: any) => {
-          const { data: profile } = await supabase.from("profiles").select("full_name").eq("user_id", p.tenant_id).maybeSingle();
-          return { ...p, tenant_name: profile?.full_name || "Unknown" };
-        })
-      );
-      setRecentPayments(paymentsWithNames);
+      // Batch fetch profiles for payments and complaints in 2 queries
+      const allTenantIds = [...new Set([
+        ...(paymentsRes.data || []).map((p: any) => p.tenant_id),
+        ...(complaintsRes.data || []).map((c: any) => c.tenant_id),
+      ].filter(Boolean))];
 
-      const complaintsWithNames = await Promise.all(
-        (complaintsRes.data || []).map(async (c: any) => {
-          const { data: profile } = await supabase.from("profiles").select("full_name").eq("user_id", c.tenant_id).maybeSingle();
-          return { ...c, tenant_name: profile?.full_name || "Unknown" };
-        })
-      );
-      setRecentComplaints(complaintsWithNames);
+      const { data: profiles } = allTenantIds.length
+        ? await supabase.from("profiles").select("user_id, full_name").in("user_id", allTenantIds)
+        : { data: [] };
+
+      const profileMap = Object.fromEntries((profiles || []).map((p: any) => [p.user_id, p.full_name]));
+
+      setRecentPayments((paymentsRes.data || []).map((p: any) => ({ ...p, tenant_name: profileMap[p.tenant_id] || "Unknown" })));
+      setRecentComplaints((complaintsRes.data || []).map((c: any) => ({ ...c, tenant_name: profileMap[c.tenant_id] || "Unknown" })));
 
       setLoading(false);
     };

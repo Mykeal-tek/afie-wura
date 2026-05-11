@@ -1,11 +1,10 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/StatCard";
-import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Wallet, Receipt, Download, FileText, Loader2 } from "lucide-react";
+import { ArrowUpRight, TrendingUp, Wallet, Receipt, Download, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,7 +17,6 @@ const Accounting = () => {
   const [loading, setLoading] = useState(true);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [reportType, setReportType] = useState("all");
 
   useEffect(() => {
     if (!user) return;
@@ -29,13 +27,12 @@ const Accounting = () => {
         .eq("landlord_id", user.id)
         .order("created_at", { ascending: false });
 
-      const withNames = await Promise.all(
-        (data || []).map(async (p: any) => {
-          const { data: profile } = await supabase.from("profiles").select("full_name").eq("user_id", p.tenant_id).maybeSingle();
-          return { ...p, tenant_name: profile?.full_name || "Unknown" };
-        })
-      );
-      setPayments(withNames);
+      const tenantIds = [...new Set((data || []).map((p: any) => p.tenant_id).filter(Boolean))];
+      const { data: profiles } = tenantIds.length
+        ? await supabase.from("profiles").select("user_id, full_name").in("user_id", tenantIds)
+        : { data: [] };
+      const profileMap = Object.fromEntries((profiles || []).map((p: any) => [p.user_id, p.full_name]));
+      setPayments((data || []).map((p: any) => ({ ...p, tenant_name: profileMap[p.tenant_id] || "Unknown" })));
       setLoading(false);
     };
     fetch();

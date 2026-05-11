@@ -41,18 +41,12 @@ const Payments = () => {
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
 
-    // Get tenant names
-    const withNames = await Promise.all(
-      (data || []).map(async (p: any) => {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("user_id", p.tenant_id)
-          .maybeSingle();
-        return { ...p, tenant_name: profile?.full_name || "Unknown" };
-      })
-    );
-    setPayments(withNames);
+    const tenantIds = [...new Set((data || []).map((p: any) => p.tenant_id).filter(Boolean))];
+    const { data: profiles } = tenantIds.length
+      ? await supabase.from("profiles").select("user_id, full_name").in("user_id", tenantIds)
+      : { data: [] };
+    const profileMap = Object.fromEntries((profiles || []).map((p: any) => [p.user_id, p.full_name]));
+    setPayments((data || []).map((p: any) => ({ ...p, tenant_name: profileMap[p.tenant_id] || "Unknown" })));
     setLoading(false);
   };
 
@@ -60,13 +54,12 @@ const Payments = () => {
     fetchPayments();
     if (user) {
       supabase.from("tenants").select("id, user_id").eq("landlord_id", user.id).then(async ({ data }) => {
-        const withNames = await Promise.all(
-          (data || []).map(async (t: any) => {
-            const { data: profile } = await supabase.from("profiles").select("full_name").eq("user_id", t.user_id).maybeSingle();
-            return { ...t, name: profile?.full_name || "Unknown" };
-          })
-        );
-        setTenants(withNames);
+        const ids = (data || []).map((t: any) => t.user_id).filter(Boolean);
+        const { data: profiles } = ids.length
+          ? await supabase.from("profiles").select("user_id, full_name").in("user_id", ids)
+          : { data: [] };
+        const profileMap = Object.fromEntries((profiles || []).map((p: any) => [p.user_id, p.full_name]));
+        setTenants((data || []).map((t: any) => ({ ...t, name: profileMap[t.user_id] || "Unknown" })));
       });
     }
   }, [user]);

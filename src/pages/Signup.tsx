@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ export default function Signup() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL ?? "/"}`;
 
   const update = (field: string, value: string) => {
@@ -80,8 +81,7 @@ export default function Signup() {
     }
 
     setLoading(false);
-    toast.success("Account created! Check your email to verify.");
-    navigate(role === "tenant" ? "/tenant" : "/dashboard");
+    setEmailSent(true);
   };
 
   const handleGoogleSignup = async () => {
@@ -101,6 +101,34 @@ export default function Signup() {
     });
     if (error) toast.error("Apple sign-up failed");
   };
+
+  if (emailSent) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card className="animate-fade-in">
+            <CardHeader className="text-center">
+              <img src={logo} alt="Afie Wura" className="h-14 w-14 mx-auto mb-2" />
+              <CardTitle className="font-display text-2xl">Check Your Email</CardTitle>
+              <CardDescription className="font-body">One more step to get started</CardDescription>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <Mail className="h-8 w-8 text-primary" />
+              </div>
+              <p className="text-sm text-muted-foreground font-body">
+                We sent a verification link to <span className="font-medium text-foreground">{form.email}</span>. Click the link in the email to activate your account.
+              </p>
+              <p className="text-xs text-muted-foreground">Didn't receive it? Check your spam folder.</p>
+              <Button className="w-full" onClick={() => navigate(`/login?role=${role}`)}>
+                Go to Login
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
