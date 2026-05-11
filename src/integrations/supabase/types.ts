@@ -394,6 +394,45 @@ export type Database = {
         }
         Relationships: []
       }
+      tenant_invites: {
+        Row: {
+          id: string
+          landlord_id: string
+          email: string
+          property_id: string | null
+          unit: string | null
+          base_rent: number
+          token: string
+          status: string
+          created_at: string
+          expires_at: string
+        }
+        Insert: {
+          id?: string
+          landlord_id: string
+          email: string
+          property_id?: string | null
+          unit?: string | null
+          base_rent?: number
+          token?: string
+          status?: string
+          created_at?: string
+          expires_at?: string
+        }
+        Update: {
+          id?: string
+          landlord_id?: string
+          email?: string
+          property_id?: string | null
+          unit?: string | null
+          base_rent?: number
+          token?: string
+          status?: string
+          created_at?: string
+          expires_at?: string
+        }
+        Relationships: []
+      }
       tenants: {
         Row: {
           base_rent: number

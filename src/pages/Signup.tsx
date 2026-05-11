@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { ArrowLeft, Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,13 +14,31 @@ import { supabase } from "@/integrations/supabase/client";
 export default function Signup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const role = searchParams.get("role") || "landlord";
+  const inviteToken = searchParams.get("invite");
+  const role = inviteToken ? "tenant" : (searchParams.get("role") || "landlord");
   const [form, setForm] = useState({ fullName: "", email: "", phone: "", password: "", confirmPassword: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [inviteData, setInviteData] = useState<any>(null);
   const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL ?? "/"}`;
+
+  useEffect(() => {
+    if (!inviteToken) return;
+    supabase
+      .from("tenant_invites")
+      .select("*")
+      .eq("token", inviteToken)
+      .eq("status", "pending")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data && new Date(data.expires_at) > new Date()) {
+          setInviteData(data);
+          setForm((prev) => ({ ...prev, email: data.email }));
+        }
+      });
+  }, [inviteToken]);
 
   const update = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -69,15 +87,27 @@ export default function Signup() {
     }
 
     if (data.user) {
-      // Insert role
       await supabase.from("user_roles").insert({ user_id: data.user.id, role: role as "landlord" | "tenant" });
-      // Insert profile
       await supabase.from("profiles").insert({
         user_id: data.user.id,
         full_name: form.fullName,
         phone: form.phone,
         email: form.email,
       });
+
+      // Process invite — link tenant to landlord and property
+      if (inviteToken && inviteData) {
+        await supabase.from("tenants").insert({
+          user_id: data.user.id,
+          landlord_id: inviteData.landlord_id,
+          property_id: inviteData.property_id || null,
+          unit: inviteData.unit || null,
+          base_rent: inviteData.base_rent || 0,
+          status: "Active",
+          move_in: new Date().toISOString().split("T")[0],
+        });
+        await supabase.from("tenant_invites").update({ status: "accepted" }).eq("id", inviteData.id);
+      }
     }
 
     setLoading(false);
