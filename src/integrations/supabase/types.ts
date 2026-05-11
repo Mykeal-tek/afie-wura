@@ -443,6 +443,7 @@ export type Database = {
           move_in: string | null
           property_id: string | null
           rent_due: number | null
+          rent_due_day: number | null
           status: string
           unit: string | null
           updated_at: string
@@ -457,6 +458,7 @@ export type Database = {
           move_in?: string | null
           property_id?: string | null
           rent_due?: number | null
+          rent_due_day?: number | null
           status?: string
           unit?: string | null
           updated_at?: string
@@ -471,6 +473,7 @@ export type Database = {
           move_in?: string | null
           property_id?: string | null
           rent_due?: number | null
+          rent_due_day?: number | null
           status?: string
           unit?: string | null
           updated_at?: string

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Phone, Mail, Loader2, UserPlus, Copy, Check, Clock, X } from "lucide-react";
+import { Plus, Phone, Mail, Loader2, UserPlus, Copy, Check, Clock, X, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AddTenantDialog } from "@/components/AddTenantDialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -43,6 +43,8 @@ const Tenants = () => {
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
 
+    const rows = error ? [] : (data || []);
+
     if (error) {
       const { data: fallbackData } = await supabase
         .from("tenants")
@@ -50,9 +52,41 @@ const Tenants = () => {
         .eq("landlord_id", user.id)
         .order("created_at", { ascending: false });
       setTenants(fallbackData || []);
-    } else {
-      setTenants(data || []);
+      setLoading(false);
+      return;
     }
+
+    // Batch-fetch this month's completed payments to detect overdue tenants
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+    const tenantUserIds = rows.map((t: any) => t.user_id).filter(Boolean);
+    const { data: paidThisMonth } = tenantUserIds.length
+      ? await supabase
+          .from("payments")
+          .select("tenant_id")
+          .eq("landlord_id", user.id)
+          .eq("status", "Completed")
+          .gte("created_at", monthStart)
+          .lte("created_at", monthEnd)
+          .in("tenant_id", tenantUserIds)
+      : { data: [] };
+    const paidSet = new Set((paidThisMonth || []).map((p: any) => p.tenant_id));
+
+    // Compute and persist overdue status changes
+    const today = now.getDate();
+    const updates: Promise<any>[] = [];
+    const processed = rows.map((t: any) => {
+      const dueDay = t.rent_due_day ?? 1;
+      const shouldBeOverdue = today >= dueDay && !paidSet.has(t.user_id) && t.status !== "Pending";
+      const newStatus = shouldBeOverdue ? "Overdue" : (t.status === "Overdue" && paidSet.has(t.user_id) ? "Active" : t.status);
+      if (newStatus !== t.status) {
+        updates.push(supabase.from("tenants").update({ status: newStatus }).eq("id", t.id));
+      }
+      return { ...t, status: newStatus };
+    });
+    await Promise.all(updates);
+    setTenants(processed);
     setLoading(false);
   };
 
@@ -219,7 +253,15 @@ const Tenants = () => {
                           {profile?.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{profile.phone}</span>}
                           {profile?.email && <span className="flex items-center gap-1 truncate"><Mail className="h-3 w-3 shrink-0" />{profile.email}</span>}
                         </div>
-                        {tenant.move_in && <p className="text-xs text-muted-foreground mt-1">Move-in: {new Date(tenant.move_in).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</p>}
+                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                          {tenant.move_in && <span>Move-in: {new Date(tenant.move_in).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>}
+                          {tenant.rent_due_day && (
+                            <span className={`flex items-center gap-1 ${tenant.status === "Overdue" ? "text-destructive font-medium" : ""}`}>
+                              {tenant.status === "Overdue" && <AlertCircle className="h-3 w-3" />}
+                              Due: {tenant.rent_due_day}{["st","nd","rd"][((tenant.rent_due_day+90)%100-10)%10-1]||"th"} of month
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </CardContent>

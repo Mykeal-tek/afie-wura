@@ -25,6 +25,7 @@ export function AddTenantDialog({ open, onOpenChange, onTenantAdded }: Props) {
   const [property, setProperty] = useState("");
   const [unit, setUnit] = useState("");
   const [moveIn, setMoveIn] = useState("");
+  const [rentDueDay, setRentDueDay] = useState("1");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -93,6 +94,7 @@ export function AddTenantDialog({ open, onOpenChange, onTenantAdded }: Props) {
       base_rent: parseFloat(baseRent),
       duration: parseInt(duration),
       rent_due: rentDue,
+      rent_due_day: parseInt(rentDueDay) || 1,
       move_in: moveIn,
       status: "Pending",
     });
@@ -112,7 +114,7 @@ export function AddTenantDialog({ open, onOpenChange, onTenantAdded }: Props) {
   const handleClose = (val: boolean) => {
     if (!val) {
       setBaseRent(""); setDuration(""); setName(""); setPhone(""); setEmail("");
-      setProperty(""); setUnit(""); setMoveIn(""); setErrors({}); setSubmitted(false);
+      setProperty(""); setUnit(""); setMoveIn(""); setRentDueDay("1"); setErrors({}); setSubmitted(false);
     }
     onOpenChange(val);
   };
@@ -180,10 +182,24 @@ export function AddTenantDialog({ open, onOpenChange, onTenantAdded }: Props) {
               </div>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label>Move-in Date <span className="text-destructive">*</span></Label>
-            <Input type="date" value={moveIn} onChange={(e) => setMoveIn(e.target.value)} className={fieldError("moveIn") ? "border-destructive" : ""} />
-            {fieldError("moveIn") && <p className="text-xs text-destructive">{fieldError("moveIn")}</p>}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Move-in Date <span className="text-destructive">*</span></Label>
+              <Input type="date" value={moveIn} onChange={(e) => setMoveIn(e.target.value)} className={fieldError("moveIn") ? "border-destructive" : ""} />
+              {fieldError("moveIn") && <p className="text-xs text-destructive">{fieldError("moveIn")}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label>Rent Due Day</Label>
+              <Input
+                type="number"
+                min={1}
+                max={28}
+                placeholder="e.g. 1"
+                value={rentDueDay}
+                onChange={(e) => setRentDueDay(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">Day of month rent is due (1–28)</p>
+            </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
